@@ -108,7 +108,7 @@ class DatabaseService {
       }
     } catch (e) {
       debugPrint('Oyun detayı getirme hatası: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -165,7 +165,7 @@ class DatabaseService {
       }
     } catch (e) {
       debugPrint('Kullanıcı detayı getirme hatası: $e');
-      throw e;
+      rethrow;
     }
   }
 

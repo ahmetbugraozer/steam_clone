@@ -35,7 +35,7 @@ class GameCard extends StatelessWidget {
                       height: 150,
                       width: double.infinity,
                       color: Colors.grey[800],
-                      child: Icon(
+                      child: const Icon(
                         Icons.image_not_supported,
                         size: 50,
                         color: Colors.white,

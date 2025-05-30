@@ -50,7 +50,7 @@ class AppTheme {
       shadowColor: Colors.black38,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(6),
-        side: BorderSide(color: accentColor.withOpacity(0.3), width: 1),
+        side: BorderSide(color: accentColor.withValues(alpha: 0.3), width: 1),
       ),
       clipBehavior: Clip.antiAlias,
     ),
@@ -74,28 +74,28 @@ class AppTheme {
       fillColor: primaryColor,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(4),
-        borderSide: BorderSide(color: accentColor),
+        borderSide: const BorderSide(color: accentColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(4),
-        borderSide: BorderSide(color: highlightColor, width: 2),
+        borderSide: const BorderSide(color: highlightColor, width: 2),
       ),
-      hintStyle: TextStyle(color: textMuted),
-      labelStyle: TextStyle(color: textSecondary),
+      hintStyle: const TextStyle(color: textMuted),
+      labelStyle: const TextStyle(color: textSecondary),
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: const TabBarTheme(
       labelColor: highlightColor,
       unselectedLabelColor: textSecondary,
       indicatorColor: highlightColor,
       indicatorSize: TabBarIndicatorSize.tab,
-      labelStyle: const TextStyle(fontWeight: FontWeight.w600),
-      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+      labelStyle: TextStyle(fontWeight: FontWeight.w600),
+      unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: accentColor,
-      selectedColor: highlightColor.withOpacity(0.2),
-      labelStyle: TextStyle(color: textPrimary),
-      side: BorderSide(color: accentColor),
+      selectedColor: highlightColor.withValues(alpha: 0.2),
+      labelStyle: const TextStyle(color: textPrimary),
+      side: const BorderSide(color: accentColor),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     textTheme: const TextTheme(
@@ -124,10 +124,10 @@ class AppTheme {
       bodySmall: TextStyle(color: textMuted, fontSize: 12),
     ),
     dividerTheme: DividerThemeData(
-      color: accentColor.withOpacity(0.5),
+      color: accentColor.withValues(alpha: 0.5),
       thickness: 1,
       space: 1,
     ),
-    iconTheme: IconThemeData(color: textSecondary),
+    iconTheme: const IconThemeData(color: textSecondary),
   );
 }

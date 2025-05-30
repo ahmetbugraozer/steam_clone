@@ -20,7 +20,7 @@ class ReviewCard extends StatelessWidget {
                 // Kullanıcı profil resmi
                 CircleAvatar(
                   backgroundColor: Theme.of(context).colorScheme.primary,
-                  child: Icon(Icons.person, color: Colors.white),
+                  child: const Icon(Icons.person, color: Colors.white),
                 ),
                 const SizedBox(width: 12),
                 // Kullanıcı adı ve puan
@@ -65,12 +65,12 @@ class ReviewCard extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.thumb_up, size: 16, color: Colors.green),
+                const Icon(Icons.thumb_up, size: 16, color: Colors.green),
                 const SizedBox(width: 4),
                 Text('${review.helpfulCount}',
                     style: const TextStyle(fontSize: 12)),
                 const SizedBox(width: 16),
-                Icon(Icons.thumb_down, size: 16, color: Colors.red),
+                const Icon(Icons.thumb_down, size: 16, color: Colors.red),
                 const SizedBox(width: 4),
                 Text('${review.notHelpfulCount}',
                     style: const TextStyle(fontSize: 12)),

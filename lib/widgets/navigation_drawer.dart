@@ -35,13 +35,13 @@ class CustomNavigationDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(
+                const Icon(
                   Icons.gamepad,
                   size: 40,
                   color: Colors.white,
                 ),
                 const SizedBox(height: 12),
-                Text(
+                const Text(
                   'Steam Clone',
                   style: TextStyle(
                     color: Colors.white,
@@ -52,7 +52,7 @@ class CustomNavigationDrawer extends StatelessWidget {
                 Text(
                   'Oyun Kütüphanesi',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 14,
                   ),
                 ),

@@ -15,7 +15,7 @@ class UserListTile extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.primary,
-          child: Icon(
+          child: const Icon(
             Icons.person,
             color: Colors.white,
           ),
