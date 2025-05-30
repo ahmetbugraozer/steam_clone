@@ -172,19 +172,32 @@ class DatabaseService {
   // Kullanıcı kütüphanesini getir
   Future<List<LibraryItem>> getUserLibrary(int userId) async {
     try {
+      debugPrint('Kullanıcı kütüphanesi isteniyor - UserId: $userId');
       final response =
           await http.get(Uri.parse('$baseUrl/users/$userId/library'));
+
+      debugPrint('Kütüphane API Response Status: ${response.statusCode}');
+      debugPrint('Kütüphane API Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
-        return data.map((item) => LibraryItem.fromMap(item)).toList();
+        debugPrint('Kütüphane verisi sayısı: ${data.length}');
+
+        final libraryItems = data.map((item) {
+          debugPrint('Kütüphane item verisi: $item');
+          return LibraryItem.fromMap(item);
+        }).toList();
+
+        return libraryItems;
       } else {
-        debugPrint('API hatası: ${response.statusCode}');
+        debugPrint(
+            'Kütüphane API hatası: ${response.statusCode} - ${response.body}');
         return [];
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Kütüphaneyi getirme hatası: $e');
+      debugPrint('Stack trace: $stackTrace');
       return [];
     }
   }
@@ -358,8 +371,33 @@ class DatabaseService {
     }
   }
 
-  // Gerçek istatistikleri getir
+  // Gerçek istatistikleri getir - Tek API çağrısı ile
   Future<Map<String, dynamic>> getRealStatistics() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/analytics/overview'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'gamesCount': data['totalGames'] ?? 0,
+          'usersCount': data['totalUsers'] ?? 0,
+          'reviewsCount': data['totalReviews'] ?? 0,
+          'averageRating': (data['avgRating'] ?? 0.0).toDouble(),
+        };
+      } else {
+        // Fallback olarak ayrı ayrı çağırabilir
+        debugPrint(
+            'Overview API hatası, fallback kullanılıyor: ${response.statusCode}');
+        return await _getFallbackStatistics();
+      }
+    } catch (e) {
+      debugPrint('İstatistikler getirme hatası: $e');
+      return await _getFallbackStatistics();
+    }
+  }
+
+  // Fallback istatistikler
+  Future<Map<String, dynamic>> _getFallbackStatistics() async {
     try {
       final futures = await Future.wait([
         getTotalGamesCount(),
@@ -375,7 +413,7 @@ class DatabaseService {
         'averageRating': futures[3],
       };
     } catch (e) {
-      debugPrint('İstatistikler getirme hatası: $e');
+      debugPrint('Fallback istatistikler hatası: $e');
       return {
         'gamesCount': 0,
         'usersCount': 0,

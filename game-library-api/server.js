@@ -9,8 +9,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Veritabanı konfigürasyonu (Windows Authentication için)
-// Veritabanı konfigürasyonu (Windows Authentication için alternatif)
 // Veritabanı konfigürasyonu
 const config = {
   user: process.env.DB_USER,
@@ -20,7 +18,6 @@ const config = {
   options: {
     encrypt: true,
     trustServerCertificate: true,
-    // Windows Authentication'ı kaldırın
     // trustedConnection: true, 
   }
 };
@@ -249,17 +246,26 @@ app.get('/api/users/:id/library', async (req, res) => {
     const result = await pool.request()
       .input('userId', sql.Int, req.params.id)
       .query(`
-        SELECT k.*, o.OyunAdi, o.KapakGorseliURL
+        SELECT 
+          k.KutuphaneKayitID,
+          k.KullaniciID,
+          k.OyunID,
+          k.SahipOlmaTarihi,
+          k.OynamaSuresiSaat,
+          k.SonOynamaTarihi,
+          o.OyunAdi,
+          o.KapakGorseliURL
         FROM Kutuphane k
         JOIN Oyunlar o ON k.OyunID = o.OyunID
         WHERE k.KullaniciID = @userId
-        ORDER BY k.SonOynamaTarihi DESC
+        ORDER BY k.SonOynamaTarihi DESC, k.SahipOlmaTarihi DESC
       `);
     
+    console.log(`Kullanıcı ${req.params.id} için ${result.recordset.length} kütüphane kaydı bulundu`);
     res.json(result.recordset);
   } catch (err) {
-    console.error('Hata:', err);
-    res.status(500).send('Sunucu hatası');
+    console.error('Kütüphane getirme hatası:', err);
+    res.status(500).json({ error: 'Kütüphane verisi alınırken hata oluştu', details: err.message });
   }
 });
 
@@ -457,6 +463,51 @@ app.get('/api/analytics/overview', async (req, res) => {
   } catch (err) {
     console.error('Hata:', err);
     res.status(500).send('Sunucu hatası');
+  }
+});
+
+// Genel İstatistikler - Gerçek API endpoint'leri ekleyelim
+app.get('/api/analytics/games-count', async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request().query('SELECT COUNT(*) as count FROM Oyunlar');
+    res.json({ count: result.recordset[0].count });
+  } catch (err) {
+    console.error('Hata:', err);
+    res.status(500).json({ error: 'Oyun sayısı alınırken hata oluştu' });
+  }
+});
+
+app.get('/api/analytics/users-count', async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request().query('SELECT COUNT(*) as count FROM Kullanicilar');
+    res.json({ count: result.recordset[0].count });
+  } catch (err) {
+    console.error('Hata:', err);
+    res.status(500).json({ error: 'Kullanıcı sayısı alınırken hata oluştu' });
+  }
+});
+
+app.get('/api/analytics/reviews-count', async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request().query('SELECT COUNT(*) as count FROM Yorumlar');
+    res.json({ count: result.recordset[0].count });
+  } catch (err) {
+    console.error('Hata:', err);
+    res.status(500).json({ error: 'Yorum sayısı alınırken hata oluştu' });
+  }
+});
+
+app.get('/api/analytics/average-rating', async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request().query('SELECT AVG(CAST(OrtalamaPuan AS FLOAT)) as average FROM Oyunlar WHERE OrtalamaPuan IS NOT NULL');
+    res.json({ average: result.recordset[0].average || 0.0 });
+  } catch (err) {
+    console.error('Hata:', err);
+    res.status(500).json({ error: 'Ortalama puan alınırken hata oluştu' });
   }
 });
 
