@@ -42,10 +42,9 @@ class Game {
       id: map['OyunID'],
       name: map['OyunAdi'],
       description: map['Aciklama'] ?? '',
-      releaseDate:
-          map['CikisTarihi'] != null
-              ? DateTime.parse(map['CikisTarihi'])
-              : null,
+      releaseDate: map['CikisTarihi'] != null
+          ? DateTime.parse(map['CikisTarihi'])
+          : null,
       price: map['Fiyat'],
       coverImageUrl: map['KapakGorseliURL'] ?? '',
       developerId: map['GelistiriciID'],

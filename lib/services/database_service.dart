@@ -18,22 +18,34 @@ class DatabaseService {
   // Gerçek cihaz için bilgisayarınızın IP adresini kullanılmalı: 'http://192.168.1.X:3000/api'
   // iOS emulator için: 'http://localhost:3000/api'
 
-  // En yüksek puanlı oyunları getir
-  Future<List<Game>> getTopRatedGames({int limit = 5}) async {
+  // Tüm oyunları getir
+  Future<List<Game>> getAllGames() async {
     try {
-      final response =
-          await http.get(Uri.parse('$baseUrl/games/top-rated?limit=$limit'));
+      final response = await http.get(Uri.parse('$baseUrl/games'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
-        return data.map((item) {
+        final games = data.map((item) {
           return Game.fromMap(
             item,
             genres: List<String>.from(item['genres'] ?? []),
             tags: List<String>.from(item['tags'] ?? []),
           );
         }).toList();
+
+        // Duplicate oyunları temizle
+        final Map<int, Game> uniqueGames = {};
+        for (final game in games) {
+          uniqueGames[game.id] = game;
+        }
+
+        final uniqueGamesList = uniqueGames.values.toList();
+
+        // Oyunları alfabetik sıraya göre sırala
+        uniqueGamesList.sort((a, b) => a.name.compareTo(b.name));
+
+        return uniqueGamesList;
       } else {
         debugPrint('API hatası: ${response.statusCode}');
         return [];
@@ -44,21 +56,30 @@ class DatabaseService {
     }
   }
 
-  // Tüm oyunları getir
-  Future<List<Game>> getAllGames() async {
+  // En yüksek puanlı oyunları getir
+  Future<List<Game>> getTopRatedGames({int limit = 5}) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/games'));
+      final response =
+          await http.get(Uri.parse('$baseUrl/games/top-rated?limit=$limit'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
-        return data.map((item) {
+        final games = data.map((item) {
           return Game.fromMap(
             item,
             genres: List<String>.from(item['genres'] ?? []),
             tags: List<String>.from(item['tags'] ?? []),
           );
         }).toList();
+
+        // Duplicate oyunları temizle
+        final Map<int, Game> uniqueGames = {};
+        for (final game in games) {
+          uniqueGames[game.id] = game;
+        }
+
+        return uniqueGames.values.toList();
       } else {
         debugPrint('API hatası: ${response.statusCode}');
         return [];
@@ -217,13 +238,21 @@ class DatabaseService {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
-        return data.map((item) {
+        final games = data.map((item) {
           return Game.fromMap(
             item,
             genres: List<String>.from(item['genres'] ?? []),
             tags: List<String>.from(item['tags'] ?? []),
           );
         }).toList();
+
+        // Duplicate oyunları temizle
+        final Map<int, Game> uniqueGames = {};
+        for (final game in games) {
+          uniqueGames[game.id] = game;
+        }
+
+        return uniqueGames.values.toList();
       } else {
         debugPrint('API hatası: ${response.statusCode}');
         return [];
@@ -268,20 +297,91 @@ class DatabaseService {
     }
   }
 
-  // Genel istatistikleri getir
-  int getTotalGamesCount() {
-    return 2500; // Bu değeri API'den almak için bir request eklenebilir
+  // Genel istatistikleri getir - Gerçek API çağrıları
+  Future<int> getTotalGamesCount() async {
+    try {
+      final response =
+          await http.get(Uri.parse('$baseUrl/analytics/games-count'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['count'] ?? 0;
+      }
+      return 0;
+    } catch (e) {
+      debugPrint('Oyun sayısı getirme hatası: $e');
+      return 0;
+    }
   }
 
-  int getTotalUsersCount() {
-    return 10000; // Bu değeri API'den almak için bir request eklenebilir
+  Future<int> getTotalUsersCount() async {
+    try {
+      final response =
+          await http.get(Uri.parse('$baseUrl/analytics/users-count'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['count'] ?? 0;
+      }
+      return 0;
+    } catch (e) {
+      debugPrint('Kullanıcı sayısı getirme hatası: $e');
+      return 0;
+    }
   }
 
-  int getTotalReviewsCount() {
-    return 45000; // Bu değeri API'den almak için bir request eklenebilir
+  Future<int> getTotalReviewsCount() async {
+    try {
+      final response =
+          await http.get(Uri.parse('$baseUrl/analytics/reviews-count'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['count'] ?? 0;
+      }
+      return 0;
+    } catch (e) {
+      debugPrint('Yorum sayısı getirme hatası: $e');
+      return 0;
+    }
   }
 
-  double getAverageRating() {
-    return 4.6; // Bu değeri API'den almak için bir request eklenebilir
+  Future<double> getAverageRating() async {
+    try {
+      final response =
+          await http.get(Uri.parse('$baseUrl/analytics/average-rating'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return (data['average'] ?? 0.0).toDouble();
+      }
+      return 0.0;
+    } catch (e) {
+      debugPrint('Ortalama puan getirme hatası: $e');
+      return 0.0;
+    }
+  }
+
+  // Gerçek istatistikleri getir
+  Future<Map<String, dynamic>> getRealStatistics() async {
+    try {
+      final futures = await Future.wait([
+        getTotalGamesCount(),
+        getTotalUsersCount(),
+        getTotalReviewsCount(),
+        getAverageRating(),
+      ]);
+
+      return {
+        'gamesCount': futures[0],
+        'usersCount': futures[1],
+        'reviewsCount': futures[2],
+        'averageRating': futures[3],
+      };
+    } catch (e) {
+      debugPrint('İstatistikler getirme hatası: $e');
+      return {
+        'gamesCount': 0,
+        'usersCount': 0,
+        'reviewsCount': 0,
+        'averageRating': 0.0,
+      };
+    }
   }
 }

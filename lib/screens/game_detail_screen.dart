@@ -145,7 +145,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 4),
-              if (game.releaseDate != null) ...[
+              ...[
                 Text(
                   'Çıkış Tarihi: ${_formatDate(game.releaseDate!)}',
                   style: const TextStyle(fontSize: 16),

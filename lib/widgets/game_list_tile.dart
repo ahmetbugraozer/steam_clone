@@ -11,9 +11,8 @@ class GameListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(8),
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: game.coverImageUrl.isNotEmpty
@@ -26,10 +25,8 @@ class GameListTile extends StatelessWidget {
                     width: 60,
                     height: 60,
                     color: Colors.grey[800],
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.image_not_supported,
+                        color: Colors.white),
                   ),
                 )
               : Container(
@@ -67,24 +64,14 @@ class GameListTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  game.price.toStringAsFixed(2),
+                  '₺${game.price.toStringAsFixed(2)}',
                   style: const TextStyle(fontSize: 12),
                 ),
               ],
             ),
           ],
         ),
-        trailing: game.genres.isNotEmpty
-            ? Chip(
-                label: Text(
-                  game.genres.first,
-                  style: const TextStyle(fontSize: 10),
-                ),
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.secondary.withValues(alpha: 0.2),
-              )
-            : null,
+        trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),
     );

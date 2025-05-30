@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final DatabaseService _databaseService = DatabaseService();
   List<Game> _topRatedGames = [];
+  Map<String, dynamic> _statistics = {};
   bool _isLoading = true;
 
   @override
@@ -33,11 +34,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      // Bu metodun gerçek implementasyonu database_service.dart'ta olacak
-      final games = await _databaseService.getTopRatedGames(limit: 5);
+      final futures = await Future.wait([
+        _databaseService.getTopRatedGames(limit: 5),
+        _databaseService.getRealStatistics(),
+      ]);
 
       setState(() {
-        _topRatedGames = games;
+        _topRatedGames = futures[0] as List<Game>;
+        _statistics = futures[1] as Map<String, dynamic>;
         _isLoading = false;
       });
     } catch (e) {
@@ -52,9 +56,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dijital Oyun Kütüphanesi'),
+        title: Row(
+          children: [
+            Icon(Icons.gamepad, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            const Text('Steam Clone'),
+          ],
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData)
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadData,
+            tooltip: 'Yenile',
+          )
         ],
       ),
       drawer: CustomNavigationDrawer(
@@ -80,48 +94,93 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionTitle('En Yüksek Puanlı Oyunlar'),
-                    const SizedBox(height: 16),
-                    _buildTopRatedGames(),
-                    const SizedBox(height: 32),
-                    _buildSectionTitle('Hızlı İstatistikler'),
-                    const SizedBox(height: 16),
-                    _buildStatCards(),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AnalyticsScreen(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: const Text('Tüm Analitikleri Görüntüle'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeroSection(),
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('En Yüksek Puanlı Oyunlar'),
+                        const SizedBox(height: 16),
+                        _buildTopRatedGames(),
+                        const SizedBox(height: 32),
+                        _buildSectionTitle('Platform İstatistikleri'),
+                        const SizedBox(height: 16),
+                        _buildStatCards(),
+                        const SizedBox(height: 32),
+                        _buildActionButton(),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onBackground,
+  Widget _buildHeroSection() {
+    return Container(
+      width: double.infinity,
+      height: 200,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.8),
+            Theme.of(context).colorScheme.secondary.withOpacity(0.6),
+          ],
+        ),
       ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Dijital Oyun Kütüphanesi',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'En iyi oyunları keşfedin, arkadaşlarınızla paylaşın',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 24,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+      ],
     );
   }
 
@@ -168,32 +227,53 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisSpacing: 16,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      children: const [
+      children: [
         StatsCard(
           title: 'Toplam Oyun',
-          value: '2,500+',
+          value: '${_statistics['gamesCount'] ?? 0}',
           icon: Icons.games,
           color: Colors.blue,
         ),
         StatsCard(
           title: 'Toplam Kullanıcı',
-          value: '10,000+',
+          value: '${_statistics['usersCount'] ?? 0}',
           icon: Icons.people,
           color: Colors.green,
         ),
         StatsCard(
           title: 'Toplam Yorum',
-          value: '45,000+',
+          value: '${_statistics['reviewsCount'] ?? 0}',
           icon: Icons.comment,
           color: Colors.orange,
         ),
         StatsCard(
           title: 'Ortalama Puan',
-          value: '4.6',
+          value: '${(_statistics['averageRating'] ?? 0.0).toStringAsFixed(1)}',
           icon: Icons.star,
           color: Colors.amber,
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AnalyticsScreen(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.analytics),
+        label: const Text('Tüm Analitikleri Görüntüle'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+      ),
     );
   }
 }

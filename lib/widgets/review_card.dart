@@ -18,8 +18,10 @@ class ReviewCard extends StatelessWidget {
             Row(
               children: [
                 // Kullanıcı profil resmi
-                Icon(Icons.person,
-                    size: 40, color: Theme.of(context).colorScheme.primary),
+                CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  child: Icon(Icons.person, color: Colors.white),
+                ),
                 const SizedBox(width: 12),
                 // Kullanıcı adı ve puan
                 Expanded(
@@ -42,9 +44,8 @@ class ReviewCard extends StatelessWidget {
                             _formatDate(review.reviewDate),
                             style: TextStyle(
                               fontSize: 12,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color:
+                                  Theme.of(context).textTheme.bodySmall?.color,
                             ),
                           ),
                         ],
@@ -56,46 +57,23 @@ class ReviewCard extends StatelessWidget {
             ),
             if (review.reviewText != null && review.reviewText!.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text(review.reviewText!, style: const TextStyle(fontSize: 14)),
+              Text(
+                review.reviewText!,
+                style: const TextStyle(fontSize: 14),
+              ),
             ],
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(
-                  Icons.thumb_up_outlined,
-                  size: 16,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+                Icon(Icons.thumb_up, size: 16, color: Colors.green),
                 const SizedBox(width: 4),
-                Text(
-                  '${review.helpfulCount}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
+                Text('${review.helpfulCount}',
+                    style: const TextStyle(fontSize: 12)),
                 const SizedBox(width: 16),
-                Icon(
-                  Icons.thumb_down_outlined,
-                  size: 16,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+                Icon(Icons.thumb_down, size: 16, color: Colors.red),
                 const SizedBox(width: 4),
-                Text(
-                  '${review.notHelpfulCount}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
+                Text('${review.notHelpfulCount}',
+                    style: const TextStyle(fontSize: 12)),
               ],
             ),
           ],
@@ -110,13 +88,14 @@ class ReviewCard extends StatelessWidget {
     final int emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         for (int i = 0; i < fullStars; i++)
-          const Icon(Icons.star, color: Colors.amber, size: 14),
+          const Icon(Icons.star, color: Colors.amber, size: 16),
         if (hasHalfStar)
-          const Icon(Icons.star_half, color: Colors.amber, size: 14),
+          const Icon(Icons.star_half, color: Colors.amber, size: 16),
         for (int i = 0; i < emptyStars; i++)
-          const Icon(Icons.star_border, color: Colors.amber, size: 14),
+          const Icon(Icons.star_border, color: Colors.amber, size: 16),
       ],
     );
   }

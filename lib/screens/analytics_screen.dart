@@ -23,6 +23,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   List<Game> _mostWishlistedGames = [];
   Map<String, dynamic> _genreStats = {};
   Map<String, dynamic> _tagStats = {};
+  Map<String, dynamic> _statistics = {};
 
   @override
   void initState() {
@@ -44,18 +45,20 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
 
     try {
       // Tüm verileri paralel olarak yükle
-      final topRatedGames = await _databaseService.getTopRatedGames(limit: 10);
-      final mostWishlistedGames = await _databaseService.getMostWishlistedGames(
-        limit: 10,
-      );
-      final genreStats = await _databaseService.getGenreStatistics();
-      final tagStats = await _databaseService.getTagStatistics();
+      final futures = await Future.wait([
+        _databaseService.getTopRatedGames(limit: 10),
+        _databaseService.getMostWishlistedGames(limit: 10),
+        _databaseService.getGenreStatistics(),
+        _databaseService.getTagStatistics(),
+        _databaseService.getRealStatistics(),
+      ]);
 
       setState(() {
-        _topRatedGames = topRatedGames;
-        _mostWishlistedGames = mostWishlistedGames;
-        _genreStats = genreStats;
-        _tagStats = tagStats;
+        _topRatedGames = futures[0] as List<Game>;
+        _mostWishlistedGames = futures[1] as List<Game>;
+        _genreStats = futures[2] as Map<String, dynamic>;
+        _tagStats = futures[3] as Map<String, dynamic>;
+        _statistics = futures[4] as Map<String, dynamic>;
         _isLoading = false;
       });
     } catch (e) {
@@ -123,25 +126,26 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             children: [
               StatsCard(
                 title: 'Toplam Oyun',
-                value: '${_databaseService.getTotalGamesCount()}',
+                value: '${_statistics['gamesCount'] ?? 0}',
                 icon: Icons.games,
                 color: Colors.blue,
               ),
               StatsCard(
                 title: 'Toplam Kullanıcı',
-                value: '${_databaseService.getTotalUsersCount()}',
+                value: '${_statistics['usersCount'] ?? 0}',
                 icon: Icons.people,
                 color: Colors.green,
               ),
               StatsCard(
                 title: 'Toplam Yorum',
-                value: '${_databaseService.getTotalReviewsCount()}',
+                value: '${_statistics['reviewsCount'] ?? 0}',
                 icon: Icons.comment,
                 color: Colors.orange,
               ),
               StatsCard(
                 title: 'Ortalama Puan',
-                value: _databaseService.getAverageRating().toStringAsFixed(2),
+                value:
+                    '${(_statistics['averageRating'] ?? 0.0).toStringAsFixed(1)}',
                 icon: Icons.star,
                 color: Colors.amber,
               ),

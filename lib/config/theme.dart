@@ -1,59 +1,133 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Steam'in koyu mavi-gri renk şeması
-  static const Color primaryColor = Color(0xFF171a21);
-  static const Color accentColor = Color(0xFF1b2838);
+  // Steam'in modern koyu renk şeması
+  static const Color primaryColor = Color(0xFF1b2838);
+  static const Color backgroundColor = Color(0xFF0e141b);
+  static const Color surfaceColor = Color(0xFF1e2328);
+  static const Color accentColor = Color(0xFF2a475e);
   static const Color highlightColor = Color(0xFF66c0f4);
-  static const Color textColor = Color(0xFFc7d5e0);
-  static const Color secondaryTextColor = Color(0xFF8f98a0);
+  static const Color successColor = Color(0xFF90ba3c);
+  static const Color warningColor = Color(0xFFffc82c);
+  static const Color errorColor = Color(0xFFcd5c2c);
+  static const Color textPrimary = Color(0xFFc7d5e0);
+  static const Color textSecondary = Color(0xFF8f98a0);
+  static const Color textMuted = Color(0xFF67707b);
 
   static final ThemeData darkTheme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
     primaryColor: primaryColor,
-    scaffoldBackgroundColor: primaryColor,
+    scaffoldBackgroundColor: backgroundColor,
     colorScheme: const ColorScheme.dark(
       primary: highlightColor,
       secondary: accentColor,
-      surface: accentColor,
-      background: primaryColor,
+      surface: surfaceColor,
+      background: backgroundColor,
       onPrimary: Colors.white,
-      onSecondary: textColor,
-      onSurface: textColor,
-      onBackground: textColor,
+      onSecondary: textPrimary,
+      onSurface: textPrimary,
+      onBackground: textPrimary,
+      error: errorColor,
+      onError: Colors.white,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: accentColor,
-      elevation: 0,
-      iconTheme: IconThemeData(color: textColor),
+      backgroundColor: primaryColor,
+      elevation: 2,
+      shadowColor: Colors.black26,
+      iconTheme: IconThemeData(color: textPrimary, size: 24),
       titleTextStyle: TextStyle(
-        color: textColor,
+        color: textPrimary,
         fontSize: 20,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.5,
       ),
+      centerTitle: false,
     ),
     cardTheme: CardTheme(
-      color: accentColor,
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      color: surfaceColor,
+      elevation: 4,
+      shadowColor: Colors.black38,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(color: accentColor.withOpacity(0.3), width: 1),
+      ),
+      clipBehavior: Clip.antiAlias,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: highlightColor,
         foregroundColor: Colors.white,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        elevation: 2,
+        shadowColor: Colors.black26,
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+          letterSpacing: 0.5,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
     ),
-    textTheme: const TextTheme(
-      headlineLarge: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-      headlineMedium: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-      titleLarge: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-      titleMedium: TextStyle(color: textColor),
-      bodyLarge: TextStyle(color: textColor),
-      bodyMedium: TextStyle(color: secondaryTextColor),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: primaryColor,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(4),
+        borderSide: BorderSide(color: accentColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(4),
+        borderSide: BorderSide(color: highlightColor, width: 2),
+      ),
+      hintStyle: TextStyle(color: textMuted),
+      labelStyle: TextStyle(color: textSecondary),
     ),
-    dividerTheme:
-        const DividerThemeData(color: Color(0xFF324353), thickness: 1),
+    tabBarTheme: TabBarTheme(
+      labelColor: highlightColor,
+      unselectedLabelColor: textSecondary,
+      indicatorColor: highlightColor,
+      indicatorSize: TabBarIndicatorSize.tab,
+      labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: accentColor,
+      selectedColor: highlightColor.withOpacity(0.2),
+      labelStyle: TextStyle(color: textPrimary),
+      side: BorderSide(color: accentColor),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(
+        color: textPrimary,
+        fontWeight: FontWeight.bold,
+        fontSize: 32,
+      ),
+      headlineMedium: TextStyle(
+        color: textPrimary,
+        fontWeight: FontWeight.bold,
+        fontSize: 24,
+      ),
+      titleLarge: TextStyle(
+        color: textPrimary,
+        fontWeight: FontWeight.w600,
+        fontSize: 20,
+      ),
+      titleMedium: TextStyle(
+        color: textPrimary,
+        fontWeight: FontWeight.w500,
+        fontSize: 16,
+      ),
+      bodyLarge: TextStyle(color: textPrimary, fontSize: 16),
+      bodyMedium: TextStyle(color: textSecondary, fontSize: 14),
+      bodySmall: TextStyle(color: textMuted, fontSize: 12),
+    ),
+    dividerTheme: DividerThemeData(
+      color: accentColor.withOpacity(0.5),
+      thickness: 1,
+      space: 1,
+    ),
+    iconTheme: IconThemeData(color: textSecondary),
   );
 }

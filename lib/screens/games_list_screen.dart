@@ -29,11 +29,16 @@ class _GamesListScreenState extends State<GamesListScreen> {
     });
 
     try {
-      // Bu metodun gerçek implementasyonu database_service.dart'ta olacak
       final games = await _databaseService.getAllGames();
 
+      // Duplicate oyunları temizle (aynı ID'ye sahip oyunları)
+      final Map<int, Game> uniqueGames = {};
+      for (final game in games) {
+        uniqueGames[game.id] = game;
+      }
+
       setState(() {
-        _games = games;
+        _games = uniqueGames.values.toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -53,20 +58,28 @@ class _GamesListScreenState extends State<GamesListScreen> {
       return _games;
     }
 
-    return _games.where((game) {
+    final filtered = _games.where((game) {
       return game.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          game.developerName.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ) ||
+          game.developerName
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase()) ||
           game.publisherName.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
+
+    // Filtrelenmiş sonuçlarda da tekrar eden oyunları temizle
+    final Map<int, Game> uniqueFiltered = {};
+    for (final game in filtered) {
+      uniqueFiltered[game.id] = game;
+    }
+
+    return uniqueFiltered.values.toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tüm Oyunlar'),
+        title: Text('Tüm Oyunlar (${_games.length})'),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadGames)
         ],
@@ -78,8 +91,18 @@ class _GamesListScreenState extends State<GamesListScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Oyun ara...',
+                hintText: 'Oyun, geliştirici veya yayıncı ara...',
                 prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -94,12 +117,58 @@ class _GamesListScreenState extends State<GamesListScreen> {
             ),
           ),
 
+          // Sonuç sayısı göstergesi
+          if (_searchQuery.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Text(
+                    '${_filteredGames.length} sonuç bulundu',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+
           // Oyun listesi
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredGames.isEmpty
-                    ? const Center(child: Text('Oyun bulunamadı.'))
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 64,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _searchQuery.isEmpty
+                                  ? 'Oyun bulunamadı.'
+                                  : 'Arama kriterlerinize uygun oyun bulunamadı.',
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                            if (_searchQuery.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                },
+                                child: const Text('Aramayı temizle'),
+                              ),
+                            ],
+                          ],
+                        ),
+                      )
                     : ListView.builder(
                         itemCount: _filteredGames.length,
                         itemBuilder: (context, index) {

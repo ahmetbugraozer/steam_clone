@@ -28,10 +28,9 @@ class LibraryItem {
       gameId: map['OyunID'],
       purchaseDate: DateTime.parse(map['SahipOlmaTarihi']),
       playTimeHours: map['OynamaSuresiSaat'],
-      lastPlayedDate:
-          map['SonOynamaTarihi'] != null
-              ? DateTime.parse(map['SonOynamaTarihi'])
-              : null,
+      lastPlayedDate: map['SonOynamaTarihi'] != null
+          ? DateTime.parse(map['SonOynamaTarihi'])
+          : null,
       gameName: map['OyunAdi'],
       coverImageUrl: map['KapakGorseliURL'] ?? '',
     );

@@ -11,11 +11,15 @@ class UserListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(8),
-        leading: Icon(Icons.person,
-            size: 40, color: Theme.of(context).colorScheme.primary),
+        leading: CircleAvatar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: Icon(
+            Icons.person,
+            color: Colors.white,
+          ),
+        ),
         title: Text(
           user.username,
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -30,9 +34,7 @@ class UserListTile extends StatelessWidget {
                 Icon(
                   Icons.calendar_today,
                   size: 14,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 4),
                 Text(

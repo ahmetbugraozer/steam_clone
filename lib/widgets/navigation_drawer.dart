@@ -15,90 +15,104 @@ class CustomNavigationDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Image.asset(
-                    'assets/logo.png',
-                    height: 70,
-                    // Eğer asset yoksa, bir placeholder kullanabiliriz
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.games, size: 70, color: Colors.white),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Dijital Oyun Kütüphanesi',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    'Admin Paneli',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
+      child: Column(
+        children: [
+          Container(
+            height: 160,
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.secondary,
                 ],
               ),
             ),
-            _buildDrawerItem(
-              context,
-              icon: Icons.home,
-              title: 'Ana Sayfa',
-              onTap: () => Navigator.pop(context),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(
+                  Icons.gamepad,
+                  size: 40,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Steam Clone',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Oyun Kütüphanesi',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
-            _buildDrawerItem(
-              context,
-              icon: Icons.games,
-              title: 'Oyunlar',
-              onTap: () {
-                Navigator.pop(context);
-                onGamesSelected();
-              },
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.home,
+                  title: 'Ana Sayfa',
+                  onTap: () => Navigator.pop(context),
+                ),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.games,
+                  title: 'Tüm Oyunlar',
+                  onTap: () {
+                    Navigator.pop(context);
+                    onGamesSelected();
+                  },
+                ),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.people,
+                  title: 'Kullanıcılar',
+                  onTap: () {
+                    Navigator.pop(context);
+                    onUsersSelected();
+                  },
+                ),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.analytics,
+                  title: 'Analitikler',
+                  onTap: () {
+                    Navigator.pop(context);
+                    onAnalyticsSelected();
+                  },
+                ),
+                const Divider(),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.settings,
+                  title: 'Ayarlar',
+                  onTap: () => Navigator.pop(context),
+                ),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.info,
+                  title: 'Hakkında',
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
             ),
-            _buildDrawerItem(
-              context,
-              icon: Icons.people,
-              title: 'Kullanıcılar',
-              onTap: () {
-                Navigator.pop(context);
-                onUsersSelected();
-              },
-            ),
-            _buildDrawerItem(
-              context,
-              icon: Icons.bar_chart,
-              title: 'Analitikler',
-              onTap: () {
-                Navigator.pop(context);
-                onAnalyticsSelected();
-              },
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _buildDrawerItem(
-              context,
-              icon: Icons.settings,
-              title: 'Ayarlar',
-              onTap: () => Navigator.pop(context),
-            ),
-            _buildDrawerItem(
-              context,
-              icon: Icons.info_outline,
-              title: 'Hakkında',
-              onTap: () => Navigator.pop(context),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -110,14 +124,13 @@ class CustomNavigationDrawer extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.onBackground),
-      title: Text(
-        title,
-        style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
-      ),
+      leading: Icon(icon),
+      title: Text(title),
       onTap: onTap,
-      hoverColor:
-          Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
     );
   }
 }
