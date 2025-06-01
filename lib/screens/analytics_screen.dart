@@ -257,23 +257,26 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: _mostWishlistedGames.length,
-      itemBuilder: (context, index) {
-        final game = _mostWishlistedGames[index];
-        return GameListTile(
-          game: game,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => GameDetailScreen(gameId: game.id),
-              ),
-            );
-          },
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(8),
+        itemCount: _mostWishlistedGames.length,
+        itemBuilder: (context, index) {
+          final game = _mostWishlistedGames[index];
+          return GameListTile(
+            game: game,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GameDetailScreen(gameId: game.id),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

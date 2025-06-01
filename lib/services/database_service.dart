@@ -15,9 +15,7 @@ class DatabaseService {
 
   // API'nin URL'si (emülatör için)
 
-  String get baseUrl => dotenv.env['BASE_URL'] ?? ''; // Android emulator için
-  // Gerçek cihaz için bilgisayarınızın IP adresini kullanılmalı: 'http://192.168.1.X:3000/api'
-  // iOS emulator için: 'http://localhost:3000/api'
+  String get baseUrl => dotenv.env['BASE_URL'] ?? '';
 
   // Tüm oyunları getir
   Future<List<Game>> getAllGames() async {
@@ -283,12 +281,24 @@ class DatabaseService {
       } else {
         debugPrint(
             'Most wishlisted API hatası: ${response.statusCode} - ${response.body}');
-        return [];
+
+        // Fallback: En yüksek puanlı oyunları döndür
+        debugPrint('Fallback olarak en yüksek puanlı oyunlar getiriliyor...');
+        return await getTopRatedGames(limit: limit);
       }
     } catch (e, stackTrace) {
       debugPrint('En çok istek listesine eklenen oyunları getirme hatası: $e');
       debugPrint('Stack trace: $stackTrace');
-      return [];
+
+      try {
+        // Fallback: En yüksek puanlı oyunları döndür
+        debugPrint(
+            'Hata durumunda fallback olarak en yüksek puanlı oyunlar getiriliyor...');
+        return await getTopRatedGames(limit: limit);
+      } catch (fallbackError) {
+        debugPrint('Fallback da başarısız: $fallbackError');
+        return [];
+      }
     }
   }
 

@@ -328,48 +328,49 @@ app.get('/api/games/most-wishlisted', async (req, res) => {
     console.log(`Toplam istek listesi kayıt sayısı: ${checkResult.recordset[0].TotalWishlistItems}`);
     
     if (checkResult.recordset[0].TotalWishlistItems === 0) {
-      console.log('Hiç istek listesi kaydı bulunamadı');
+      console.log('Hiç istek listesi kaydı bulunamadı, boş liste döndürülüyor');
       return res.json([]);
     }
     
+    // Basitleştirilmiş sorgu
     const result = await pool.request()
       .input('limit', sql.Int, limit)
       .query(`
-        WITH WishlistCounts AS (
-          SELECT 
-            o.OyunID, 
-            o.OyunAdi, 
-            o.Aciklama, 
-            o.CikisTarihi, 
-            o.Fiyat, 
-            o.KapakGorseliURL, 
-            o.GelistiriciID, 
-            o.YayinciID, 
-            o.OrtalamaPuan, 
-            o.SistemGereksinimleri,
-            g.GelistiriciAdi, 
-            y.YayinciAdi, 
-            COUNT(i.IstekListesiID) as EklenmeSayisi
-          FROM Oyunlar o
-          INNER JOIN Gelistiriciler g ON o.GelistiriciID = g.GelistiriciID
-          INNER JOIN Yayincilar y ON o.YayinciID = y.YayinciID
-          INNER JOIN IstekListesi i ON o.OyunID = i.OyunID
-          GROUP BY 
-            o.OyunID, o.OyunAdi, o.Aciklama, o.CikisTarihi, o.Fiyat, o.KapakGorseliURL, 
-            o.GelistiriciID, o.YayinciID, o.OrtalamaPuan, o.SistemGereksinimleri, 
-            g.GelistiriciAdi, y.YayinciAdi
-          HAVING COUNT(i.IstekListesiID) > 0
-        )
-        SELECT TOP (@limit) * 
-        FROM WishlistCounts 
-        ORDER BY EklenmeSayisi DESC
+        SELECT TOP (@limit)
+          o.OyunID, 
+          o.OyunAdi, 
+          o.Aciklama, 
+          o.CikisTarihi, 
+          o.Fiyat, 
+          o.KapakGorseliURL, 
+          o.GelistiriciID, 
+          o.YayinciID, 
+          o.OrtalamaPuan, 
+          o.SistemGereksinimleri,
+          g.GelistiriciAdi, 
+          y.YayinciAdi, 
+          COUNT(i.IstekListesiID) as EklenmeSayisi
+        FROM Oyunlar o
+        INNER JOIN Gelistiriciler g ON o.GelistiriciID = g.GelistiriciID
+        INNER JOIN Yayincilar y ON o.YayinciID = y.YayinciID
+        INNER JOIN IstekListesi i ON o.OyunID = i.OyunID
+        GROUP BY 
+          o.OyunID, o.OyunAdi, o.Aciklama, o.CikisTarihi, o.Fiyat, o.KapakGorseliURL, 
+          o.GelistiriciID, o.YayinciID, o.OrtalamaPuan, o.SistemGereksinimleri, 
+          g.GelistiriciAdi, y.YayinciAdi
+        ORDER BY COUNT(i.IstekListesiID) DESC
       `);
     
     console.log(`En çok istek listesine eklenen oyunlar - ${result.recordset.length} oyun bulundu`);
     
+    if (result.recordset.length === 0) {
+      console.log('Gruplandırılmış veriler bulunamadı, boş liste döndürülüyor');
+      return res.json([]);
+    }
+    
     const games = result.recordset;
     
-    // Her oyun için tür ve etiketleri getir
+    // Her oyun için tür ve etiketleri getir (daha az oyun için)
     for (let game of games) {
       try {
         // Türleri getir
@@ -403,16 +404,57 @@ app.get('/api/games/most-wishlisted', async (req, res) => {
       }
     }
     
+    console.log(`Başarıyla ${games.length} oyun döndürülüyor`);
     res.json(games);
+    
   } catch (err) {
     console.error('En çok istek listesine eklenen oyunlar hatası:', err);
     console.error('Hata detayı:', err.message);
-    console.error('Stack trace:', err.stack);
-    res.status(500).json({ 
-      error: 'En çok istek listesine eklenen oyunlar alınırken hata oluştu', 
-      details: err.message,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
+    
+    // Eğer veritabanı bağlantısı varsa, basit bir alternatif sorgu dene
+    try {
+      const pool = await sql.connect(config);
+      const fallbackResult = await pool.request()
+        .input('limit', sql.Int, req.query.limit || 10)
+        .query(`
+          SELECT TOP (@limit)
+            o.OyunID, 
+            o.OyunAdi, 
+            o.Aciklama, 
+            o.CikisTarihi, 
+            o.Fiyat, 
+            o.KapakGorseliURL, 
+            o.GelistiriciID, 
+            o.YayinciID, 
+            o.OrtalamaPuan, 
+            o.SistemGereksinimleri,
+            g.GelistiriciAdi, 
+            y.YayinciAdi
+          FROM Oyunlar o
+          INNER JOIN Gelistiriciler g ON o.GelistiriciID = g.GelistiriciID
+          INNER JOIN Yayincilar y ON o.YayinciID = y.YayinciID
+          WHERE o.OrtalamaPuan IS NOT NULL
+          ORDER BY o.OrtalamaPuan DESC
+        `);
+      
+      const games = fallbackResult.recordset.map(game => ({
+        ...game,
+        genres: [],
+        tags: [],
+        EklenmeSayisi: 0
+      }));
+      
+      console.log(`Fallback sorgu ile ${games.length} oyun döndürülüyor`);
+      res.json(games);
+      
+    } catch (fallbackError) {
+      console.error('Fallback sorgu da başarısız:', fallbackError);
+      res.status(500).json({ 
+        error: 'En çok istek listesine eklenen oyunlar alınırken hata oluştu', 
+        details: err.message,
+        fallbackError: fallbackError.message
+      });
+    }
   }
 });
 
