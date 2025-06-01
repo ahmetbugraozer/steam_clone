@@ -49,8 +49,8 @@ flutter:
   uses-material-design: true
   
   # Uygulama varlıkları
-  # assets:
-   
+  assets:
+    - .env
     
   # Fontlar
 # fonts:
