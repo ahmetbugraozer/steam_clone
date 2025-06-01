@@ -1,0 +1,63 @@
+name: steam_clone
+description: A Flutter application that mimics the Steam platform, featuring a user-friendly interface, game listings, and community features.
+
+# Publish to 'pub.dev' için bu sürümü arttırın
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI Widget'ları
+  cupertino_icons: ^1.0.5
+  flutter_svg: ^2.0.7
+  cached_network_image: ^3.2.3
+  shimmer: ^3.0.0
+  
+  # Veritabanı
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  
+  # Durum Yönetimi
+  provider: ^6.0.5
+  
+  # Tarih ve Format
+  intl: ^0.18.1
+  
+  # HTTP İstekleri (gerçek API için)
+  http: ^1.1.0
+  
+  # Dosya İşlemleri
+  path_provider: ^2.1.0
+  
+  # Gösterim Bileşenleri
+  fl_chart: ^0.63.0     # Grafikler için
+  share_plus: ^7.1.0    # Paylaşım için
+  url_launcher: ^6.1.12 # URL açmak için
+  flutter_dotenv: ^5.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.2
+
+# Flutter özellikleri
+flutter:
+  uses-material-design: true
+  
+  # Uygulama varlıkları
+  # assets:
+   
+    
+  # Fontlar
+# fonts:
+#   - family: Roboto
+#     fonts:
+#       - asset: assets/fonts/Roboto-Regular.ttf
+#       - asset: assets/fonts/Roboto-Bold.ttf
+#         weight: 700
+#       - asset: assets/fonts/Roboto-Light.ttf
+#         weight: 300
